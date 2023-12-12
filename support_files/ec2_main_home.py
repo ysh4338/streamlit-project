@@ -42,7 +42,6 @@ def get_instance_name_tag(ec2_client, instance_id):
 
 # EC2 Information
 token = get_token()
-ec2_client = boto3.client('ec2', region_name='us-east-1')
 
 instance_id=get_instance_metadata(token, "instance-id")
 instance_type=get_instance_metadata(token, "instance-type")
@@ -51,6 +50,7 @@ instance_availability_zone=get_instance_metadata(token, "placement/availability-
 instance_private_ip=get_instance_metadata(token, "local-ipv4")
 instance_public_ip=get_instance_metadata(token, "public-ipv4")
 
+ec2_client = boto3.client('ec2', region_name=instance_region)
 instance_name = get_instance_name_tag(ec2_client, instance_id)
 
 with cole1:
