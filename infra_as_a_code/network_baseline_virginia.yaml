@@ -110,10 +110,14 @@ Parameters:
     Description: Operating System for EC2
     Type: String
     Default: ami-0230bd60aa48260c6
-  EC2InstanceName:
+  EC2InstanceNameWeb:
     Description: Name Tag for EC2
     Type: String
     Default: lab-edu-ec2-web-us
+  EC2InstanceNameNetwork:
+    Description: Name Tag for EC2
+    Type: String
+    Default: lab-edu-ec2-network-us
   EC2InstanceType:
     Description: WebServer EC2 instance type
     Type: String
@@ -122,6 +126,14 @@ Parameters:
     Description: EC2 Instance Role Name
     Type: String
     Default: lab-edu-role-webserver-us
+  EC2SecurityGroupWeb:
+    Description: Security Group Name for Web Server
+    Type: String
+    Default: lan-edu-sg-web-us
+  EC2SecurityGroupNetwork:
+    Description: Security Group Name for Network Server
+    Type: String
+    Default: lan-edu-sg-network-us
 
 
 # Mappings:
@@ -167,9 +179,12 @@ Metadata:
           
           # - KeyName
           - EC2OS
-          - EC2InstanceName
+          - EC2InstanceNameWeb
+          - EC2InstanceNameNetwork
           - EC2InstanceType
           - EC2InstanceRoleName
+          - EC2SecurityGroupWeb
+          - EC2SecurityGroupNetwork
           
 
 Resources:
@@ -405,7 +420,7 @@ Resources:
     Type: AWS::EC2::SecurityGroup
     Properties:
       GroupDescription: allow 80 port
-      GroupName: WebEC2SecutiryGroup
+      GroupName: !Ref EC2SecurityGroupWeb
       SecurityGroupIngress:
         - IpProtocol: tcp
           FromPort: 80
@@ -450,7 +465,33 @@ Resources:
           "streamlit run ec2_main_home.py --server.port 80\n"] ]
       Tags:
         - Key: Name
-          Value: !Ref EC2InstanceName
+          Value: !Ref EC2InstanceNameWeb
+  SecurityGroupNetwork:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Allow all traffic from 10.0.0.0/8
+      GroupName: !Ref EC2SecurityGroupNetwork
+      SecurityGroupIngress:
+        - IpProtocol: -1
+          FromPort: -1
+          ToPort: -1
+          CidrIp: 10.0.0.0/8
+      VpcId: !Ref VPC
+  NetworkServer:
+    Type: AWS::EC2::Instance
+    Properties:
+      ImageId: !Ref EC2OS
+      # KeyName: !Ref KeyName
+      InstanceType: !Ref EC2InstanceType
+      SubnetId: !Ref PrivateSubnet01
+      IamInstanceProfile: !Ref EC2InstanceProfile
+      SecurityGroupIds:
+        - !Ref SecurityGroupNetwork
+      Tags:
+        - Key: Name
+          Value: !Ref EC2InstanceNameNetwork
+  
+  
   EC2InstanceProfile: 
     Type: AWS::IAM::InstanceProfile
     Properties: 
@@ -510,8 +551,13 @@ Outputs:
     Export:
       Name: !Sub "${AWS::StackName}-TransitGWSubnet02"
       
-  EC2InstancePublicIp:
+  EC2InstanceWebPublicIp:
     Value: !GetAtt WebServer.PublicIp
-    Description: The Public IP address of the EC2 instance
+    Description: The Public IP address of the Web EC2 instance
     Export:
-      Name: !Sub "${AWS::StackName}-EC2InstancePublicIp"
+      Name: !Sub "${AWS::StackName}-EC2InstanceWebPublicIp"
+  EC2InstanceNetworkPrivateIp:
+    Value: !GetAtt NetworkServer.PrivateIp
+    Description: The Private IP address of the Network EC2 instance
+    Export:
+      Name: !Sub "${AWS::StackName}-EC2InstanceNetworkPrivateIp"

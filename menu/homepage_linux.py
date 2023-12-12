@@ -28,10 +28,11 @@ class Homepage:
         
         for reservation in response["Reservations"]:
             for instance in reservation["Instances"]:
-                # 태그 목록 내에서 'Name' 키를 가진 태그를 찾습니다.
+                # 태그 목록 내에서 'Name' 키를 가진 태그를 찾는다.
                 name_tag = next((tag['Value'] for tag in instance.get('Tags', []) if tag['Key'] == 'Name'), None)
+                # 'Name' 태그 값 반환
                 if name_tag:
-                    return name_tag  # 'Name' 태그 값 반환
+                    return name_tag  
         return None
 
     def server_monitoring(self):
@@ -71,6 +72,7 @@ class Homepage:
 
     def homepage(self):
         st.title("AWS EC2 Information")
+        # Monitoring and Load Button ----------
         col1, col2, col3 = st.columns([1, 1, 8])
         with col1:
             st.markdown("<span style='font-size: 15px; text-align: center;'>Start Monitoring</span>", unsafe_allow_html=True)
@@ -80,29 +82,47 @@ class Homepage:
             placeholder_stress = st.empty()
         with col3:
             placeholder_monitoring = st.empty()
-        st.header('EC2 Instance Information Table', divider = "gray")
-
+        
+        # Side-bar for entering timeout value of stress tool
         with st.sidebar:
             st.sidebar.header('System Control Panner')
             timeout = st.sidebar.number_input('Enter timeout for the stress test:', value=300)
-
-
-        # EC2 Instance Information
+            
+            
+        # EC2 Information area --------------------------------
+        st.header('EC2 Instance Information', divider = "gray")
+        
+        # GET EC2 Instance Information TABLE format
         token = self.get_token()
-        ec2_client = boto3.client('ec2')
+        region = self.get_instance_metadata(token, "placement/region")
+        ec2_client = boto3.client('ec2', region_name=region)
         instance_id = self.get_instance_metadata(token, "instance-id")
         name_tag = self.get_instance_name_tag(ec2_client, instance_id)
         metadata_info = {
             "Name": name_tag,
             "Instance ID": self.get_instance_metadata(token, "instance-id"),
             "Instance Type": self.get_instance_metadata(token, "instance-type"),
+            "Region": region,
+            "Availability Zone": self.get_instance_metadata(token, "placement/availability-zone"),
             "Private IP": self.get_instance_metadata(token, "local-ipv4"),
             "Public IP": self.get_instance_metadata(token, "public-ipv4"),
-            "Region": self.get_instance_metadata(token, "placement/region"),
-            "Availability Zone": self.get_instance_metadata(token, "placement/availability-zone"),
         }
+        # GET EC2 Instance Information TEXT format
+        instance_id=self.get_instance_metadata(token, "instance-id")
+        instance_type=self.get_instance_metadata(token, "instance-type")
+        instance_region=self.get_instance_metadata(token, "placement/region")
+        instance_availability_zone=self.get_instance_metadata(token, "placement/availability-zone")
+        instance_private_ip=self.get_instance_metadata(token, "local-ipv4")
+        instance_public_ip=self.get_instance_metadata(token, "public-ipv4")
+        instance_name = self.get_instance_name_tag(ec2_client, instance_id)
+        df = pd.DataFrame(list(metadata_info.items()), columns=['Metadata', 'Value'])
+        st.table(df)
+        
 
-        # EBS Volume Information
+        # EBS Volume Information area --------------------------
+        st.header('Storage Information Table', divider = "gray")
+        
+        # GET EBS Information TABLE format
         volumes = ec2_client.describe_volumes(Filters=[{'Name': 'attachment.instance-id', 'Values': [instance_id]}])
         volume_data = []
         for volume in volumes['Volumes']:
@@ -118,12 +138,6 @@ class Homepage:
                 'Encrypted': volume['Encrypted'],
                 'Creation Date': volume['CreateTime'].strftime('%Y-%m-%d %H:%M:%S')
             })
-
-        # 데이터프레임 생성
-        df = pd.DataFrame(list(metadata_info.items()), columns=['Metadata', 'Value'])
-        st.table(df)
-
-        st.header('Storage Information Table', divider = "gray")
         st.table(volume_data)
 
         with placeholder_button.container():

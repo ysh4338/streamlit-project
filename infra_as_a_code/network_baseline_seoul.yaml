@@ -1,47 +1,47 @@
 AWSTemplateFormatVersion: '2010-09-09'
-Description: AWS CloudFormation Natwork Baseline for Education Environment. (First VPC)
+Description: AWS CloudFormation Natwork Baseline for Education Environment. (Second VPC)
 Parameters:
   VpcCIDR:
     Description: CIDR Block for VPC
     Type: String
-    Default: 10.0.0.0/16
+    Default: 10.10.0.0/16
   PublicSubnet01CIDR:
     Description: CIDR Block for Publicsubnet01
     Type: String
-    Default: 10.0.1.0/24
+    Default: 10.10.1.0/24
   PublicSubnet02CIDR:
     Description: CIDR Block for Publicsubnet01
     Type: String
-    Default: 10.0.2.0/24
+    Default: 10.10.2.0/24
   PrivateSubnet01CIDR:
     Description: CIDR Block for Privatesubnet01
     Type: String
-    Default: 10.0.11.0/24
+    Default: 10.10.11.0/24
   PrivateSubnet02CIDR:
     Description: CIDR Block for Publicsubnet02
     Type: String
-    Default: 10.0.12.0/24
+    Default: 10.10.12.0/24
   DatabaseSubnet01CIDR:
     Description: CIDR Block for DatabaseSubnet01
     Type: String
-    Default: 10.0.21.0/24
+    Default: 10.10.21.0/24
   DatabaseSubnet02CIDR:
     Description: CIDR Block for DatabaseSubnet02
     Type: String
-    Default: 10.0.22.0/24
+    Default: 10.10.22.0/24
   TransitGWSubnet01CIDR:
     Description: CIDR Block for TransitGWsubnet01
     Type: String
-    Default: 10.0.255.224/28
+    Default: 10.10.255.224/28
   TransitGWSubnet02CIDR:
     Description: CIDR Block for TransitGWsubnet02
     Type: String
-    Default: 10.0.255.240/28
+    Default: 10.10.255.240/28
 
   VpcId:
     Description: ID for VPC
     Type: String
-    Default: lab-edu-vpc-ap-01
+    Default: lab-edu-vpc-ap-02
   PublicSubnet01Id:
     Description: ID for PublicSubnet01
     Type: String
@@ -114,10 +114,10 @@ Parameters:
     Description: Operating System for EC2
     Type: String
     Default: ami-01123b84e2a4fba05
-  EC2InstanceName:
+  EC2InstanceNameNetwork:
     Description: Name Tag for EC2
     Type: String
-    Default: lab-edu-ec2-web-ap-01
+    Default: lab-edu-ec2-network-ap-02
   EC2InstanceType:
     Description: WebServer EC2 instance type
     Type: String
@@ -125,7 +125,11 @@ Parameters:
   EC2InstanceRoleName:
     Description: EC2 Instance Role Name
     Type: String
-    Default: lab-edu-role-webserver-ap-01
+    Default: lab-edu-role-webserver-ap-02
+  EC2SecurityGroupNetwork:
+    Description: Security Group Name for Network Server
+    Type: String
+    Default: lan-edu-sg-network-us
 
 Metadata: 
   AWS::CloudFormation::Interface: 
@@ -161,9 +165,10 @@ Metadata:
           
           # - KeyName
           - EC2OS
-          - EC2InstanceName
+          - EC2InstanceNameNetwork
           - EC2InstanceType
           - EC2InstanceRoleName
+          - EC2SecurityGroupNetwork
 
 Resources:
   VPC:
@@ -439,46 +444,32 @@ Resources:
           Value: !Ref VPCEndpointId
           
   # Computing Resources : EC2(WEB-Streamlit), Security Group, Profile
-  SecurityGroupWeb:
+  SecurityGroupNetwork:
     Type: AWS::EC2::SecurityGroup
     Properties:
-      GroupDescription: allow 80 port
-      GroupName: WebEC2SecutiryGroup
+      GroupDescription: Allow all traffic from 10.0.0.0/8
+      GroupName: !Ref EC2SecurityGroupNetwork
       SecurityGroupIngress:
-        - IpProtocol: tcp
-          FromPort: 80
-          ToPort: 80
-          CidrIp: 0.0.0.0/0
+        - IpProtocol: -1
+          FromPort: -1
+          ToPort: -1
+          CidrIp: 10.0.0.0/8
       VpcId: !Ref VPC
-  WebServer:
+  NetworkServer:
     Type: AWS::EC2::Instance
     Properties:
       ImageId: !Ref EC2OS
       # KeyName: !Ref KeyName
       InstanceType: !Ref EC2InstanceType
-      SubnetId: !Ref PublicSubnet01
+      SubnetId: !Ref PrivateSubnet01
       IamInstanceProfile: !Ref EC2InstanceProfile
       SecurityGroupIds:
-        - !Ref SecurityGroupWeb
-      UserData:
-        Fn::Base64:
-          !Join [ "", [
-          "#!/bin/bash\n",
-          "sudo dnf install python3.11 -y\n",
-          "sudo update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.9 1\n",
-          "sudo update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.11 2\n",
-          "echo 2 | sudo update-alternatives --config python3\n",
-          "python3 -m ensurepip --default-pip\n",
-          "sudo ln -fs /usr/bin/python3.11 /usr/bin/python\n",
-          "sudo sed -i 's|#!/usr/bin/python3|#!/usr/bin/python3.9|g' /usr/bin/dnf\n",
-          "python3 -m pip install --upgrade pip\n",
-          "pip install streamlit\n",
-          "pip install boto3\n",
-          "pip install psutil\n",
-          "dnf install stress\n"] ]
+        - !Ref SecurityGroupNetwork
       Tags:
         - Key: Name
-          Value: !Ref EC2InstanceName
+          Value: !Ref EC2InstanceNameNetwork
+  
+  
   EC2InstanceProfile: 
     Type: AWS::IAM::InstanceProfile
     Properties: 
