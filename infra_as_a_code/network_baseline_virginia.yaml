@@ -437,7 +437,17 @@ Resources:
           "pip install streamlit\n",
           "pip install boto3\n",
           "pip install psutil\n",
-          "dnf install stress\n"] ]
+          "dnf install stress\n",
+          "dnf install git -y\n",
+          "mkdir streamlit-project\n",
+          "cd streamlit-project\n",
+          "git init\n",
+          "git config core.sparseCheckout true\n",
+          "git remote add -f origin https://github.com/ysh4338/streamlit-project.git\n",
+          "echo \"support_files/ec2_main_home_us.py\" >> .git/info/sparse-checkout\n",
+          "git pull origin main\n",
+          "cd support_files\n",
+          "streamlit run ec2_main_home_us.py --server.port 80\n"] ]
       Tags:
         - Key: Name
           Value: !Ref EC2InstanceName
@@ -499,3 +509,9 @@ Outputs:
     Description: Second Transit Gateway Subnet Resource Id 
     Export:
       Name: !Sub "${AWS::StackName}-TransitGWSubnet02"
+      
+  EC2InstancePublicIp:
+    Value: !GetAtt WebServer.PublicIp
+    Description: The Public IP address of the EC2 instance
+    Export:
+      Name: !Sub "${AWS::StackName}-EC2InstancePublicIp"
