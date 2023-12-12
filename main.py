@@ -19,10 +19,10 @@ if 'logged_in' not in st.session_state:
 def side_bar():
     with st.sidebar.container():
         selected_page = option_menu(
-            "Main Menu", ["Main_Home", "Database_Home"],
-            icons=['bi bi-house', 'bi bi-database-check'],
+            "Main Menu", ["Main_Home", "Travel_Attractions"],
+            icons=['bi bi-house', 'bi bi-airplane-engines'],
             menu_icon="cast", 
-            default_index=1,
+            default_index=0,
             styles={
                 "container": {"padding": "4!important", "background-color": "#fafafa"},
                 "icon": {"color": "black", "font-size": "20px"},
@@ -36,20 +36,12 @@ def side_bar():
             st.rerun()
     return selected_page
 
-# def logged_out():
-#     with st.sidebar.container():
-#         if st.button('Logout', use_container_width=True):
-#         # 로그인 상태를 False로 설정하고 리디렉션
-#             st.session_state['logged_in'] = False
-#             st.experimental_rerun()
-
 def main():
     if st.session_state['logged_in'] == True:
         selected_page = side_bar()
-        # logged_out()
         if selected_page == 'Main_Home':
             Homepage()
-        elif selected_page == 'Database_Home':
+        elif selected_page == 'Travel_Attractions':
             Database()
     else:
         __login__()

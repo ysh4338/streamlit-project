@@ -54,6 +54,7 @@ python3 -m pip install --upgrade pip
 pip install streamlit 
 pip install streamlit-option-menu
 pip install boto3
+pip install psutil
 
 # Stress Tool Install for Auto-Scaling
 echo "################"

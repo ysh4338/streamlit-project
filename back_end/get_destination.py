@@ -1,5 +1,6 @@
 from flask import jsonify, Blueprint
-from db_connection import get_db_connection
+# from db_connection import get_db_connection
+from db_connection_secrest_manager import get_db_connection
 
 get_destinations_blueprint = Blueprint('get_destinations', __name__)
 

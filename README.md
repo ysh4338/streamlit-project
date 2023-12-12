@@ -1,2 +1,0 @@
-# streamlit-project
-streamlit-project

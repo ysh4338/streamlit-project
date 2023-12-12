@@ -1,29 +1,29 @@
-import boto3
 import time
+import boto3
 import psutil
-from widget.side_bar import start_process
 import requests
 import pandas as pd
 import streamlit as st
 
+from widget.side_bar import start_process
 
 class Homepage:
     def __init__(self):
         self.homepage()
 
-    def get_token():
+    def get_token(self):
         url = "http://169.254.169.254/latest/api/token"
         headers = {"X-aws-ec2-metadata-token-ttl-seconds": "3600"}
         response = requests.put(url, headers=headers)
         return response.text
 
-    def get_instance_metadata(token, endpoint):
+    def get_instance_metadata(self, token, endpoint):
         url = f"http://169.254.169.254/latest/meta-data/{endpoint}"
         headers = {"X-aws-ec2-metadata-token": token}
         response = requests.get(url, headers=headers)
         return response.text
 
-    def get_instance_name_tag(ec2_client, instance_id):
+    def get_instance_name_tag(self, ec2_client, instance_id):
         response = ec2_client.describe_instances(InstanceIds=[instance_id])
         
         for reservation in response["Reservations"]:
@@ -34,7 +34,7 @@ class Homepage:
                     return name_tag  # 'Name' 태그 값 반환
         return None
 
-    def server_monitoring():
+    def server_monitoring(self):
         # 상태 표시할 빈 컨테이너 생성
         col1, col2, col3, col4, col5, col6, col7 = st.columns(7)
         cpu_slot = col1.empty()
@@ -71,34 +71,70 @@ class Homepage:
 
     def homepage(self):
         st.title("AWS EC2 Information")
-        placeholder = st.empty()
+        col1, col2, col3 = st.columns([1, 1, 8])
+        with col1:
+            st.markdown("<span style='font-size: 15px; text-align: center;'>Start Monitoring</span>", unsafe_allow_html=True)
+            placeholder_button = st.empty()
+        with col2:
+            st.markdown("<span style='font-size: 15px; text-align: center;'>Start Stress Test</span>", unsafe_allow_html=True)
+            placeholder_stress = st.empty()
+        with col3:
+            placeholder_monitoring = st.empty()
         st.header('EC2 Instance Information Table', divider = "gray")
 
         with st.sidebar:
             st.sidebar.header('System Control Panner')
-            timeout = st.sidebar.number_input('Enter timeout and click button for the stress test:', value=300)
-            if st.sidebar.button("Start Stress Test", use_container_width=True):
-                start_process(timeout)
+            timeout = st.sidebar.number_input('Enter timeout for the stress test:', value=300)
 
-        # EC2 Version
-        token = Homepage.get_token()
+
+        # EC2 Instance Information
+        token = self.get_token()
         ec2_client = boto3.client('ec2')
-        instance_id = Homepage.get_instance_metadata(token, "instance-id")
-        name_tag = Homepage.get_instance_name_tag(ec2_client, instance_id)
+        instance_id = self.get_instance_metadata(token, "instance-id")
+        name_tag = self.get_instance_name_tag(ec2_client, instance_id)
         metadata_info = {
             "Name": name_tag,
-            "Instance ID": Homepage.get_instance_metadata(token, "instance-id"),
-            "Instance Type": Homepage.get_instance_metadata(token, "instance-type"),
-            "Region": Homepage.get_instance_metadata(token, "placement/region"),
-            "Private IP": Homepage.get_instance_metadata(token, "local-ipv4"),
-            "Public IP": Homepage.get_instance_metadata(token, "public-ipv4"),
-            "Availability Zone": Homepage.get_instance_metadata(token, "placement/availability-zone"),
+            "Instance ID": self.get_instance_metadata(token, "instance-id"),
+            "Instance Type": self.get_instance_metadata(token, "instance-type"),
+            "Private IP": self.get_instance_metadata(token, "local-ipv4"),
+            "Public IP": self.get_instance_metadata(token, "public-ipv4"),
+            "Region": self.get_instance_metadata(token, "placement/region"),
+            "Availability Zone": self.get_instance_metadata(token, "placement/availability-zone"),
         }
+
+        # EBS Volume Information
+        volumes = ec2_client.describe_volumes(Filters=[{'Name': 'attachment.instance-id', 'Values': [instance_id]}])
+        volume_data = []
+        for volume in volumes['Volumes']:
+            # volume_metadata_info = {}
+            volume_data.append({
+                'Instance ID': instance_id,
+                'Volume ID': volume['VolumeId'],
+                'Type': volume['VolumeType'],
+                'Size (GB)': volume['Size'],
+                'State': volume['State'],
+                'Snapshot ID': volume.get('SnapshotId', 'N/A'),
+                'IOPS': volume.get('Iops', 'N/A'),
+                'Encrypted': volume['Encrypted'],
+                'Creation Date': volume['CreateTime'].strftime('%Y-%m-%d %H:%M:%S')
+            })
 
         # 데이터프레임 생성
         df = pd.DataFrame(list(metadata_info.items()), columns=['Metadata', 'Value'])
         st.table(df)
 
-        #Monitoring Information
-        with placeholder.container():
-            Homepage.server_monitoring()
+        st.header('Storage Information Table', divider = "gray")
+        st.table(volume_data)
+
+        with placeholder_button.container():
+            if st.button("Push Button", use_container_width=True):
+                with placeholder_stress.container():
+                    if st.button("Stress Tool", use_container_width=True):
+                        start_process(timeout)
+                with placeholder_monitoring: self.server_monitoring()
+
+
+        with placeholder_stress.container():
+            if st.button("Stress Tool", use_container_width=True):
+                start_process(timeout)
+                with placeholder_monitoring: self.server_monitoring()

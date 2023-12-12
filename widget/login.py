@@ -1,10 +1,7 @@
-import os
-import sys
 import requests
 import streamlit as st
-from PIL import Image
 
-from streamlit_option_menu import option_menu
+# from streamlit_option_menu import option_menu
 
 class __login__:
     def __init__(self):

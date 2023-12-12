@@ -1,5 +1,6 @@
 from flask import jsonify, Blueprint, request
 from db_connection import get_db_connection
+# from db_connection_secrest_manager import get_db_connection
 
 login_blueprint = Blueprint('login_destinations', __name__)
     
@@ -15,12 +16,16 @@ def login():
 
     # 사용자 인증 쿼리
     cursor.execute('SELECT * FROM users WHERE username = %s;', (username,))
+    # query = f"SELECT * FROM users WHERE username = '{username}' AND password = '{password}'"
+    # cursor.execute(query)
     user = cursor.fetchone()
     cursor.close()
     conn.close()
 
     # 사용자 검증
     if user and user[3] == password: 
+    # if user:
         return jsonify(success=True)
+        # return jsonify(user=user, success=True)
     else:
         return jsonify(success=False), 401

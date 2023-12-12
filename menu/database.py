@@ -1,5 +1,6 @@
-import streamlit as st
+import time
 import requests
+import streamlit as st
 
 BACKEND_URL = "http://localhost:5000"
 
@@ -9,7 +10,8 @@ class Database:
 
     def get_attraction(self):
         st.header('Travel Attraction ', divider = "gray")
-        response = requests.get(f"{BACKEND_URL}/attractions")
+        # response = requests.get(f'{BACKEND_URL}/attractions')
+        response = requests.get(f"{BACKEND_URL}/attractions_redis")
         if response.status_code == 200:
             destinations = response.json()
 
@@ -60,7 +62,8 @@ class Database:
         st.subheader("Delete a Travel Attraction", divider = "gray")
 
         # 기존 관광지 목록을 불러옴
-        response = requests.get('http://localhost:5000/attractions')
+        # response = requests.get(f'{BACKEND_URL}/attractions')
+        response = requests.get(f'{BACKEND_URL}/attractions_redis')
         attractions = response.json()
         delete_placeholder = st.container()
 
@@ -100,7 +103,8 @@ class Database:
         st.subheader("Update a Travel Attraction", divider = "gray")
 
         # 기존 관광지 목록을 불러옴
-        response = requests.get('http://localhost:5000/attractions')
+        # response = requests.get(f'{BACKEND_URL}/attractions')
+        response = requests.get(f'{BACKEND_URL}/attractions_redis')
         attractions = response.json()
         update_placeholder = st.empty()
 
@@ -147,15 +151,31 @@ class Database:
 
         # 첫 번째 컬럼 (관광지` 추가 기능)
         with col1:
+            start_time = time.time()
             self.put_attraction()
+            end_time = time.time()
+            result = end_time - start_time
+            print(f"put_attraction time: {result} 초")
 
         # 두 번째 컬럼 (관광지 삭제 기능)
         with col2:
+            start_time = time.time()
             self.update_attraction()
+            end_time = time.time()
+            result = end_time - start_time
+            print(f"update_attraction time: {result} 초")
 
         # 세 번째 컬럼 (관광지 수정 기능)
         with col3:
+            start_time = time.time()
             self.delete_attraction()
+            end_time = time.time()
+            result = end_time - start_time
+            print(f"delete_attraction time: {result} 초")
         st.subheader("")
 
+        start_time = time.time()
         self.get_attraction()
+        end_time = time.time()
+        result = end_time - start_time
+        print(f"delete_attraction time: {result} 초")

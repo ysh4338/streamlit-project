@@ -12,6 +12,7 @@ blinker==1.6.2
 boto3==1.28.67
 botocore==1.31.67
 Brotli==1.1.0
+cachelib==0.10.2
 cachetools==5.3.1
 certifi==2023.7.22
 cffi==1.16.0
@@ -28,6 +29,7 @@ duckduckgo-search==3.9.3
 extra-streamlit-components==0.1.60
 Flask==3.0.0
 Flask-Login==0.6.3
+Flask-Session==0.5.0
 fonttools==4.43.1
 frozenlist==1.4.0
 gitdb==4.0.10
@@ -90,6 +92,7 @@ python-dateutil==2.8.2
 pytz==2023.3.post1
 pytz-deprecation-shim==0.1.0.post0
 PyYAML==6.0.1
+redis==5.0.1
 referencing==0.30.2
 requests==2.31.0
 rich==13.5.2
@@ -125,7 +128,7 @@ tzlocal==4.3.1
 urllib3==2.0.4
 validators==0.22.0
 watchdog==3.0.0
-Werkzeug==3.0.0
+Werkzeug==3.0.1
 xarray==2023.10.1
 yarl==1.9.2
 zipp==3.16.2

@@ -1,3 +1,7 @@
+---trip_advisor 데이터베이스 접속
+---Command: psql -U user -d trip_advisor
+
+---데이터 생성
 CREATE TABLE users (
     id SERIAL PRIMARY KEY,
     username VARCHAR(50) UNIQUE NOT NULL,
@@ -6,4 +10,4 @@ CREATE TABLE users (
 );
 
 INSERT INTO users (username, email, password) 
-VALUES ('admin', 'admin@admin.abc', 'qwer1234');
+VALUES ('user', 'user@admin.abc', 'qwer1234');

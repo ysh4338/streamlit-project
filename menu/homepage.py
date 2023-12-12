@@ -62,22 +62,19 @@ class Homepage:
             placeholder_button = st.empty()
         with col2:
             st.markdown("<span style='font-size: 15px; text-align: center;'>Start Stress Test</span>", unsafe_allow_html=True)
-            if st.button("Stress Tool", use_container_width=True):
-                start_process(300)
+            placeholder_stress = st.empty()
         with col3:
             placeholder_monitoring = st.empty()
         st.header('EC2 Instance Information Table', divider = "gray")
 
         with st.sidebar:
             st.sidebar.header('System Control Panner')
-            timeout = st.sidebar.number_input('Enter timeout and click button for the stress test:', value=300)
-            if st.sidebar.button("Start Stress Test", use_container_width=True):
-                start_process(timeout)
+            timeout = st.sidebar.number_input('Enter timeout for the stress test:', value=300)
 
         # Local Labtop Version
         # EC2 Instance Information
         ec2_client = boto3.client('ec2')
-        instance_id = 'i-0c9e7082ce53dfc92'
+        instance_id = 'i-0c63683edc7e9e389'
         name_tag = self.get_instance_name_tag(ec2_client, instance_id)
         ec2 = ec2_client.describe_instances(InstanceIds=[instance_id])
         for reservation in ec2['Reservations']:
@@ -86,9 +83,9 @@ class Homepage:
                     "Name": name_tag,
                     "Instance ID": instance['InstanceId'],
                     "Instance Type": instance['InstanceType'],
-                    "Region": instance['Placement']['AvailabilityZone'][:-1],
                     "Private IP": instance['PrivateIpAddress'],
                     "Public IP": instance.get('PublicIpAddress', 'N/A'),
+                    "Region": instance['Placement']['AvailabilityZone'][:-1],
                     "Availability Zone": instance['Placement']['AvailabilityZone'],
                 }
         # EBS Volume Information
@@ -117,11 +114,16 @@ class Homepage:
         # df_volume = pd.DataFrame(list(volume_metadata_info.items()),columns=['Metadata', 'Value_(1)', 'Value_(2)'])
         # st.table(df_volume)
         st.table(volume_data)
-
-        
+           
         with placeholder_button.container():
             if st.button("Push Button", use_container_width=True):
-                # with placeholder_stress.container():
-                #     if st.button("Stress Tool"):
-                #         start_process(timeout)
+                with placeholder_stress.container():
+                    if st.button("Stress Tool", use_container_width=True):
+                        start_process(timeout)
+                with placeholder_monitoring: self.server_monitoring()
+
+
+        with placeholder_stress.container():
+            if st.button("Stress Tool", use_container_width=True):
+                start_process(timeout)
                 with placeholder_monitoring: self.server_monitoring()
