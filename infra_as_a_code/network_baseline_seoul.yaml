@@ -527,3 +527,9 @@ Outputs:
     Description: Second Transit Gateway Subnet Resource Id 
     Export:
       Name: !Sub "${AWS::StackName}-TransitGWSubnet02"
+      
+  EC2InstanceNetworkPrivateIp:
+    Value: !GetAtt NetworkServer.PrivateIp
+    Description: The Private IP address of the Network EC2 instance
+    Export:
+      Name: !Sub "${AWS::StackName}-EC2InstanceNetworkPrivateIp"

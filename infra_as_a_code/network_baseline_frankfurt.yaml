@@ -95,9 +95,11 @@ Parameters:
   AvailabilityZoneSubnet01:
     Description: AvailabilityZone for every First subnet
     Type: AWS::EC2::AvailabilityZone::Name
+    Default: eu-central-1a
   AvailabilityZoneSubnet02:
     Description: AvailabilityZone for every Second subnet
     Type: AWS::EC2::AvailabilityZone::Name
+    Default: eu-central-1c
     
   VPCEndpointId:
     Description: ID for VPC Endpoint(interface type)
