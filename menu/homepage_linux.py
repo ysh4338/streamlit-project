@@ -21,7 +21,10 @@ class Homepage:
         url = f"http://169.254.169.254/latest/meta-data/{endpoint}"
         headers = {"X-aws-ec2-metadata-token": token}
         response = requests.get(url, headers=headers)
-        return response.text
+        if response.status_code == 200:
+            return response.text
+        else:
+            return None
 
     def get_instance_name_tag(self, ec2_client, instance_id):
         response = ec2_client.describe_instances(InstanceIds=[instance_id])
