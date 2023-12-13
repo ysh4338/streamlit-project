@@ -17,9 +17,10 @@ def get_instance_metadata(token, endpoint):
     response = requests.get(url, headers=headers)
     return response.text
     
-def get_account_id():
+def get_account_id(token):
     url = "http://169.254.169.254/latest/dynamic/instance-identity/document"
-    response = requests.get(url)
+    headers = {"X-aws-ec2-metadata-token": token}
+    response = requests.get(url, headers=headers)
     res = response.json()
     return res.get('accountId')
 
@@ -28,7 +29,7 @@ def get_s3_image():
     token = get_token()
     region = get_instance_metadata(token, "placement/region")
     
-    accountId = get_account_id()
+    accountId = get_account_id(token)
     bucket_name = f"lab-edu-bucket-image-{accountId}"
     
     object_key = "cj-olivenetworks.png"
