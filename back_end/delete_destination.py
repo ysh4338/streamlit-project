@@ -1,6 +1,6 @@
 from flask import jsonify, Blueprint
-# from db_connection import get_db_connection
-from db_connection_secrest_manager import get_db_connection
+from db_connection import get_db_connection
+# from db_connection_secrest_manager import get_db_connection
 
 delete_destination_blueprint = Blueprint('delete_destination', __name__)
 

@@ -3,15 +3,16 @@ import requests
 import streamlit as st
 
 BACKEND_URL = "http://localhost:5000"
+TABLE = "attractions"
+# TABLE = "attractions_redis"
 
-class Database:
+class TravelAttraction:
     def __init__(self):
         self.main_page()
 
     def get_attraction(self):
         st.header('Travel Attraction ', divider = "gray")
-        # response = requests.get(f'{BACKEND_URL}/attractions')
-        response = requests.get(f"{BACKEND_URL}/attractions_redis")
+        response = requests.get(f"{BACKEND_URL}/{TABLE}")
         if response.status_code == 200:
             destinations = response.json()
 
@@ -40,8 +41,6 @@ class Database:
             location = st.text_input("Location")
             average_rating = st.number_input("Average Rating", min_value=0.0, max_value=5.0, step=0.1)
             photo_url = st.text_input("Photo URL")
-            # st.write(""), st.write(""), st.write(""), st.write(""), st.write("")
-            # id = placeholder.text_input("Id", placeholder = 'This is auto input', disabled = True)
             
 
             if st.button("Create Attraction", use_container_width=True):
@@ -62,13 +61,11 @@ class Database:
         st.subheader("Delete a Travel Attraction", divider = "gray")
 
         # 기존 관광지 목록을 불러옴
-        # response = requests.get(f'{BACKEND_URL}/attractions')
-        response = requests.get(f'{BACKEND_URL}/attractions_redis')
+        response = requests.get(f'{BACKEND_URL}/{TABLE}')
         attractions = response.json()
         delete_placeholder = st.container()
 
         with delete_placeholder.container():
-            # with st.form("delete_attraction_form"):
             # 관광지 이름만으로 구성된 리스트
             attraction_names = [attraction['name'] for attraction in attractions]
 
@@ -85,11 +82,8 @@ class Database:
             # 선택된 관광지의 모든 정보를 보여줌
             if selected_attraction := next((attraction for attraction in attractions if attraction['name'] == selected_name), None):
                 st.image(selected_attraction['photo_url'], use_column_width='always')
-            
-            # st.write(""), st.subheader("")
 
             # 삭제 버튼
-            # if st.form_submit_button("Submit", use_container_width=True):
             if st.button("Delete Attraction", use_container_width=True):
                 # 선택된 관광지 ID를 사용하여 삭제 요청
                 delete_response = requests.delete(f'http://localhost:5000/attractions/{selected_attraction["id"]}')
@@ -103,8 +97,7 @@ class Database:
         st.subheader("Update a Travel Attraction", divider = "gray")
 
         # 기존 관광지 목록을 불러옴
-        # response = requests.get(f'{BACKEND_URL}/attractions')
-        response = requests.get(f'{BACKEND_URL}/attractions_redis')
+        response = requests.get(f'{BACKEND_URL}/{TABLE}')
         attractions = response.json()
         update_placeholder = st.empty()
 
@@ -146,7 +139,6 @@ class Database:
 
     def main_page(self):
         st.title("Trip Advisor")
-        # st.header('Edit Attraction Information', divider = "gray")
         col1, col2, col3 = st.columns(3)
 
         # 첫 번째 컬럼 (관광지` 추가 기능)

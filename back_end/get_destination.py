@@ -1,6 +1,6 @@
 from flask import jsonify, Blueprint
-# from db_connection import get_db_connection
-from db_connection_secrest_manager import get_db_connection
+from db_connection import get_db_connection
+# from db_connection_secrest_manager import get_db_connection
 
 get_destinations_blueprint = Blueprint('get_destinations', __name__)
 
@@ -10,7 +10,6 @@ def get_destinations():
     cursor = conn.cursor()
     cursor.execute('SELECT * FROM attractions;')
     destinations = cursor.fetchall()
-    print(destinations)
     cursor.close()
     conn.close()
     
@@ -24,5 +23,4 @@ def get_destinations():
             'average_rating': str(dest[3]),
             'photo_url': dest[4]
         })
-    print(destinations_list)
     return jsonify(destinations_list)
