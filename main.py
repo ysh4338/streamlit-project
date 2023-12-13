@@ -5,9 +5,13 @@ from widget.login import __login__
 from menu.homepage_linux import Homepage
 from menu.database import Database
 
+from widget.get_image_object import get_s3_image
+
+web_page_icon = get_s3_image()
 st.set_page_config(
     page_title='CJ OliveNetworks CloudWave', 
-    page_icon="./images/cj-olivenetworks.png", 
+    # page_icon="./images/cj-olivenetworks.png", 
+    page_icon=web_page_icon,
     layout="wide", 
     initial_sidebar_state="expanded", 
     menu_items=None
