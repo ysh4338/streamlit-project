@@ -139,6 +139,14 @@ class TravelAttraction:
 
     def main_page(self):
         st.title("Trip Advisor")
+        
+        start_time = time.time()
+        self.get_attraction()
+        end_time = time.time()
+        result = end_time - start_time
+        print(f"delete_attraction time: {result} 초")
+
+        
         col1, col2, col3 = st.columns(3)
 
         # 첫 번째 컬럼 (관광지` 추가 기능)
@@ -166,8 +174,3 @@ class TravelAttraction:
             print(f"delete_attraction time: {result} 초")
         st.subheader("")
 
-        start_time = time.time()
-        self.get_attraction()
-        end_time = time.time()
-        result = end_time - start_time
-        print(f"delete_attraction time: {result} 초")

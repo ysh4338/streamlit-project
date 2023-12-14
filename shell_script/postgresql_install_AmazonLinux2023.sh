@@ -1,9 +1,9 @@
 # Amazon Linux 2023 - PostgreSQL v.15 install 
 # PostgreSQL Install
-sudo dnf update
-sudo dnf install postgresql15 
-sudo dnf install postgresql15-server
-dnf install postgresql-devel
+sudo dnf update -y
+sudo dnf install postgresql15  -y
+sudo dnf install postgresql15-server -y
+sudo dnf install postgresql-devel -y
 
 # PostgreSQL Dev Tool Install
 pip install psycopg2-binary

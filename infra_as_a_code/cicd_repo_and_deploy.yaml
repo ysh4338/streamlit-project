@@ -3,34 +3,29 @@ Description: AWS CloudFormation Application CICD Base Line for Gen-AI Lab Enviro
 Parameters: 
   ArtifactS3BucketName:
     Type: String
-    Default: poc-genai-bucket-artifact-store-application
+    Default: lab-edu-bucket-artifact-store-application
+  S3AccessLogsBucket:
+    Type: String
+    Default: lab-edu-bucket-access-log
   CodeCommitRepositoryName:
     Type: String
-    Default: poc-genai-codecommit-application
+    Default: lab-edu-codecommit-application
   CodePipelineName:
     Type: String
-    Default: poc-genai-codepipeline-application
+    Default: lab-edu-codepipeline-application
   CloudWatchEventRolePolicyName:
     Type: String
-    Default: poc-genai-policy-cloudwatch-event-for-app-cicd
+    Default: lab-edu-policy-cloudwatch-event-for-app-cicd
   CodeDeployApplicationName:
     Type: String
-    Default: poc-genai-codedeploy-application-ec2
+    Default: lab-edu-codedeploy-application-ec2
   CodeDeploymentGroupName:
     Type: String
-    Default: poc-genai-deployment-group-chatbot-app
-  InfrastructureCICDStackName:
-    Description: CloudFormation Stack Name for Infrastructure Baseline CICD
-    Type: String
-    Default: StackSet-CustomControlTower-CfCT-Infrastructure-CICD-for-GenAI-7b875406-25c1-44aa-85c3-8446d4bc3cf9
-  ComputingResourceStackName:
-    Description: CloudFormation Stack Name for Computing Resources
-    Type: String
-    Default: Compute-Resource-for-GenAI
+    Default: lab-edu-deployment-group-chatbot-app
   EC2InstanceName:
     Description: EC2 Server Name Tag
     Type : String
-    Default: poc-genai-ec2-web-python310
+    Default: streamlit-privavte-02
 
 
 Metadata: 
@@ -38,16 +33,15 @@ Metadata:
     ParameterGroups: 
       - 
         Label: 
-          default: "Computing Resources"
+          default: "CI/CD Resource"
         Parameters: 
           - ArtifactS3BucketName
+          - S3AccessLogsBucket
           - CodeCommitRepositoryName
           - CodePipelineName
           - CodeDeployApplicationName
           - CodeDeploymentGroupName
           - CloudWatchEventRolePolicyName
-          - InfrastructureCICDStackName
-          - ComputingResourceStackName
           - EC2InstanceName
 
 
@@ -62,10 +56,8 @@ Resources:
         ServerSideEncryptionConfiguration:
           - ServerSideEncryptionByDefault:
               SSEAlgorithm: AES256
-      LoggingConfiguration:
-        DestinationBucketName: 
-          Fn::ImportValue:
-            !Sub "${InfrastructureCICDStackName}-S3AccessLogsBucket"
+      # LoggingConfiguration:
+      #   DestinationBucketName: !Join ['',[!Ref S3AccessLogsBucket,'-', !Ref 'AWS::AccountId']]
       PublicAccessBlockConfiguration:
         BlockPublicAcls: True
         BlockPublicPolicy: True
@@ -86,7 +78,38 @@ Resources:
               StringNotEquals:
                 s3:ResourceAccount:
                   - !Ref AWS::AccountId
-                  
+  # # Create Log Store for S3 Bucket Access Logging
+  # AccessLogS3:
+  #   Type: AWS::S3::Bucket
+  #   UpdateReplacePolicy: Retain
+  #   Properties:
+  #     BucketName: !Join ['',[!Ref S3AccessLogsBucket,'-', !Ref 'AWS::AccountId']]
+  #     BucketEncryption:
+  #       ServerSideEncryptionConfiguration:
+  #         - ServerSideEncryptionByDefault:
+  #             SSEAlgorithm: AES256
+  #     PublicAccessBlockConfiguration:
+  #       BlockPublicAcls: True
+  #       BlockPublicPolicy: True
+  #       IgnorePublicAcls: True
+  #       RestrictPublicBuckets: True
+  # AccessLogS3Policy:
+  #   Type: AWS::S3::BucketPolicy
+  #   Properties:
+  #     Bucket: !Ref AccessLogS3
+  #     PolicyDocument:
+  #       Statement:
+  #         - Sid: DenyDeleteBucket
+  #           Effect: Deny
+  #           Principal: "*"
+  #           Action: s3:DeleteBucket
+  #           Resource: !Sub arn:${AWS::Partition}:s3:::${AccessLogS3}
+  #           Condition:
+  #             StringNotEquals:
+  #               s3:ResourceAccount:
+  #                 - !Ref AWS::AccountId
+      
+  
   #Application Source Code Store
   CodeCommitRepository:
     Type: AWS::CodeCommit::Repository
@@ -144,9 +167,7 @@ Resources:
   CodePipeline:
     Type: AWS::CodePipeline::Pipeline
     Properties:
-      RoleArn: 
-        Fn::ImportValue:
-          !Sub "${InfrastructureCICDStackName}-CodePipelineRole"
+      RoleArn: !GetAtt CodePipelineRole.Arn
       Name: !Ref CodePipelineName
       Stages:
         - Name: Source
@@ -217,3 +238,16 @@ Resources:
             Action: sts:AssumeRole
       ManagedPolicyArns:
         - arn:aws:iam::aws:policy/service-role/AWSCodeDeployRole
+  CodePipelineRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          -
+            Effect: Allow
+            Principal:
+              Service: codepipeline.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/AdministratorAccess
