@@ -1,0 +1,15 @@
+verversion: 0.0
+os: linux
+files:
+  - source: /
+    destination: /root
+file_exists_behavior: OVERWRITE
+hooks:
+  ApplicationStop:
+    - location: scripts/stop_streamlit.sh
+      timeout: 300
+      runas: root
+  ApplicationStart:
+    - location: scripts/start_streamlit.sh
+      timeout: 300
+      runas: root

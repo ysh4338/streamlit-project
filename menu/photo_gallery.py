@@ -52,16 +52,19 @@ class PhotoGallery:
         
         s3 = boto3.client('s3', region_name=region)
         object_list = self.list_s3_object(s3, bucket_name)
-        
+
         columns_per_row = 3
         # range(start, end, increase)
         for index in range(0, len(object_list), columns_per_row):
+            # Split a web page using 'st.columns' to display three image in one row
             cols = st.columns(columns_per_row)
             for i in range(columns_per_row):
                 with cols[i]:
-                    if index + i < len(object_list):
+                    if index + i < len(object_list) and object_list[index+i].lower().endswith(('.png', '.jpg', '.jpeg', '.gif')):
                         dog_name=object_list[index+i].split(".")[0]
                         st.subheader(dog_name)
+                        # Use the 'endswith' Method to check whether image file or not
+                        
                         image = self.load_image(s3, bucket_name, object_list[index+i])
-                        # st.image(image, use_column_width=True)
-                        st.image(image)
+                        st.image(image, use_column_width=True)
+                        # st.image(image)
