@@ -8,27 +8,27 @@ Parameters:
   PublicSubnet01CIDR:
     Description: CIDR Block for Publicsubnet01
     Type: String
-    Default: 10.10.1.0/24
+    Default: 10.10.0.0/24
   PublicSubnet02CIDR:
     Description: CIDR Block for Publicsubnet01
     Type: String
-    Default: 10.10.2.0/24
+    Default: 10.10.1.0/24
   PrivateSubnet01CIDR:
     Description: CIDR Block for Privatesubnet01
     Type: String
-    Default: 10.10.11.0/24
+    Default: 10.10.40.0/24
   PrivateSubnet02CIDR:
     Description: CIDR Block for Publicsubnet02
     Type: String
-    Default: 10.10.12.0/24
+    Default: 10.10.41.0/24
   DatabaseSubnet01CIDR:
     Description: CIDR Block for DatabaseSubnet01
     Type: String
-    Default: 10.10.21.0/24
+    Default: 10.10.80.0/24
   DatabaseSubnet02CIDR:
     Description: CIDR Block for DatabaseSubnet02
     Type: String
-    Default: 10.10.22.0/24
+    Default: 10.10.81.0/24
   TransitGWSubnet01CIDR:
     Description: CIDR Block for TransitGWsubnet01
     Type: String
@@ -102,11 +102,7 @@ Parameters:
   AvailabilityZoneSubnet02:
     Description: AvailabilityZone for every Second subnet
     Type: AWS::EC2::AvailabilityZone::Name
-    
-  VPCEndpointId:
-    Description: ID for VPC Endpoint(interface type)
-    Type: String
-    Default: lab-edu-sg-endpoint-interface
+
   # KeyName:
   #   Description: Name of KeyPair
   #   Type: AWS::EC2::KeyPair::KeyName
@@ -129,7 +125,11 @@ Parameters:
   EC2SecurityGroupNetwork:
     Description: Security Group Name for Network Server
     Type: String
-    Default: lab-edu-sg-network-2nd-ap
+    Default: lab-edu-sg-network-2nd-ap    
+  VPCEndpointSecurityGroupName:
+    Description: ID for VPC Endpoint(interface type)
+    Type: String
+    Default: lab-edu-sg-endpoint-interface
 
 Metadata: 
   AWS::CloudFormation::Interface: 
@@ -169,6 +169,10 @@ Metadata:
           - EC2InstanceType
           - EC2InstanceRoleName
           - EC2SecurityGroupNetwork
+          - VPCEndpointSecurityGroupName
+          
+          - AvailabilityZoneSubnet01
+          - AvailabilityZoneSubnet02
 
 Resources:
   VPC:
@@ -421,8 +425,44 @@ Resources:
         - !Ref PrivateSubnet01
         - !Ref PrivateSubnet02
       SecurityGroupIds:
-        - !Ref StsEndpointSG
-  StsEndpointSG:
+        - !Ref EndpointSG
+  SSMEndpoint:
+    Type: AWS::EC2::VPCEndpoint
+    Properties:
+      VpcId: !Ref VPC
+      ServiceName: !Sub "com.amazonaws.${AWS::Region}.ssm"
+      VpcEndpointType: "Interface"
+      PrivateDnsEnabled: true
+      SubnetIds:
+        - !Ref PrivateSubnet01
+        - !Ref PrivateSubnet02
+      SecurityGroupIds:
+        - !Ref EndpointSG
+  SSMMessagesEndpoint:
+    Type: AWS::EC2::VPCEndpoint
+    Properties:
+      VpcId: !Ref VPC
+      ServiceName: !Sub "com.amazonaws.${AWS::Region}.ssmmessages"
+      VpcEndpointType: "Interface"
+      PrivateDnsEnabled: true
+      SubnetIds:
+        - !Ref PrivateSubnet01
+        - !Ref PrivateSubnet02
+      SecurityGroupIds:
+        - !Ref EndpointSG
+  EC2MessagesEndpoint:
+    Type: AWS::EC2::VPCEndpoint
+    Properties:
+      VpcId: !Ref VPC
+      ServiceName: !Sub "com.amazonaws.${AWS::Region}.ec2messages"
+      VpcEndpointType: "Interface"
+      PrivateDnsEnabled: true
+      SubnetIds:
+        - !Ref PrivateSubnet01
+        - !Ref PrivateSubnet02
+      SecurityGroupIds:
+        - !Ref EndpointSG
+  EndpointSG:
     Type: AWS::EC2::SecurityGroup
     Properties:
       GroupDescription: "Traffic into CloudFormation Endpoint"
@@ -441,7 +481,7 @@ Resources:
       Tags:
         -
           Key: Name
-          Value: !Ref VPCEndpointId
+          Value: !Ref VPCEndpointSecurityGroupName
           
   # Computing Resources : EC2(WEB-Streamlit), Security Group, Profile
   SecurityGroupNetwork:
