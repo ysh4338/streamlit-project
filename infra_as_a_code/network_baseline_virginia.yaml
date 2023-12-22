@@ -98,11 +98,7 @@ Parameters:
   AvailabilityZoneSubnet02:
     Description: AvailabilityZone for every Second subnet
     Type: AWS::EC2::AvailabilityZone::Name
-    
-  VPCEndpointId:
-    Description: ID for VPC Endpoint(interface type)
-    Type: String
-    Default: lab-edu-sg-endpoint-interface
+
   # KeyName:
   #   Description: Name of KeyPair
   #   Type: AWS::EC2::KeyPair::KeyName
@@ -145,7 +141,11 @@ Parameters:
   EC2SecurityGroupOpenSwan:
     Description: Security Group Name for Site to Site VPC(OPENSWAN) Server
     Type: String
-    Default: lan-edu-sg-s2svpn
+    Default: lan-edu-sg-s2svpn    
+  VPCEndpointSecurityGroupName:
+    Description: Name for VPC Endpoint(interface type)
+    Type: String
+    Default: lab-edu-sg-endpoint-interface
 
 # Mappings:
 #   RegionMap: 
@@ -199,6 +199,7 @@ Metadata:
           - EC2SecurityGroupWeb
           - EC2SecurityGroupNetwork
           - EC2SecurityGroupOpenSwan
+          - VPCEndpointSecurityGroupName
           
           - AvailabilityZoneSubnet01
           - AvailabilityZoneSubnet02
@@ -410,8 +411,44 @@ Resources:
         - !Ref PrivateSubnet01
         - !Ref PrivateSubnet02
       SecurityGroupIds:
-        - !Ref StsEndpointSG
-  StsEndpointSG:
+        - !Ref EndpointSG
+  SSMEndpoint:
+    Type: AWS::EC2::VPCEndpoint
+    Properties:
+      VpcId: !Ref VPC
+      ServiceName: !Sub "com.amazonaws.${AWS::Region}.ssm"
+      VpcEndpointType: "Interface"
+      PrivateDnsEnabled: true
+      SubnetIds:
+        - !Ref PrivateSubnet01
+        - !Ref PrivateSubnet02
+      SecurityGroupIds:
+        - !Ref EndpointSG
+  SSMMessagesEndpoint:
+    Type: AWS::EC2::VPCEndpoint
+    Properties:
+      VpcId: !Ref VPC
+      ServiceName: !Sub "com.amazonaws.${AWS::Region}.ssmmessages"
+      VpcEndpointType: "Interface"
+      PrivateDnsEnabled: true
+      SubnetIds:
+        - !Ref PrivateSubnet01
+        - !Ref PrivateSubnet02
+      SecurityGroupIds:
+        - !Ref EndpointSG
+  EC2MessagesEndpoint:
+    Type: AWS::EC2::VPCEndpoint
+    Properties:
+      VpcId: !Ref VPC
+      ServiceName: !Sub "com.amazonaws.${AWS::Region}.ec2messages"
+      VpcEndpointType: "Interface"
+      PrivateDnsEnabled: true
+      SubnetIds:
+        - !Ref PrivateSubnet01
+        - !Ref PrivateSubnet02
+      SecurityGroupIds:
+        - !Ref EndpointSG
+  EndpointSG:
     Type: AWS::EC2::SecurityGroup
     Properties:
       GroupDescription: "Traffic into CloudFormation Endpoint"
@@ -430,7 +467,7 @@ Resources:
       Tags:
         -
           Key: Name
-          Value: !Ref VPCEndpointId
+          Value: !Ref VPCEndpointSecurityGroupName
 
 
   # Computing Resources : EC2(WEB-Streamlit), Security Group, Profile
@@ -563,6 +600,7 @@ Resources:
       ManagedPolicyArns:
         - arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore
         - arn:aws:iam::aws:policy/AmazonEC2FullAccess
+        - arn:aws:iam::aws:policy/service-role/AmazonEC2RoleforSSM
       RoleName: !Ref EC2InstanceRoleName
 
 
