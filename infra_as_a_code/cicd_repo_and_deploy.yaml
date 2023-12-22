@@ -4,9 +4,9 @@ Parameters:
   ArtifactS3BucketName:
     Type: String
     Default: lab-edu-bucket-artifact-store-application
-  S3AccessLogsBucket:
-    Type: String
-    Default: lab-edu-bucket-access-log
+  # S3AccessLogsBucket:
+  #   Type: String
+  #   Default: lab-edu-bucket-access-log
   CodeCommitRepositoryName:
     Type: String
     Default: lab-edu-codecommit-application
@@ -21,11 +21,11 @@ Parameters:
     Default: lab-edu-codedeploy-application-ec2
   CodeDeploymentGroupName:
     Type: String
-    Default: lab-edu-deployment-group-chatbot-app
+    Default: lab-edu-deployment-group-app
   EC2InstanceName:
     Description: EC2 Server Name Tag
     Type : String
-    Default: streamlit-privavte-02
+    Default: lab-edu-ec2-web-ap
 
 
 Metadata: 
@@ -36,7 +36,7 @@ Metadata:
           default: "CI/CD Resource"
         Parameters: 
           - ArtifactS3BucketName
-          - S3AccessLogsBucket
+          # - S3AccessLogsBucket
           - CodeCommitRepositoryName
           - CodePipelineName
           - CodeDeployApplicationName

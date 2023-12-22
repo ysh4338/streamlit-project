@@ -8,27 +8,27 @@ Parameters:
   PublicSubnet01CIDR:
     Description: CIDR Block for Publicsubnet01
     Type: String
-    Default: 10.30.1.0/24
+    Default: 10.30.0.0/24
   PublicSubnet02CIDR:
     Description: CIDR Block for Publicsubnet01
     Type: String
-    Default: 10.30.2.0/24
+    Default: 10.30.1.0/24
   PrivateSubnet01CIDR:
     Description: CIDR Block for Privatesubnet01
     Type: String
-    Default: 10.30.11.0/24
+    Default: 10.30.40.0/24
   PrivateSubnet02CIDR:
     Description: CIDR Block for Publicsubnet02
     Type: String
-    Default: 10.30.12.0/24
+    Default: 10.30.41.0/24
   DatabaseSubnet01CIDR:
     Description: CIDR Block for DatabaseSubnet01
     Type: String
-    Default: 10.30.21.0/24
+    Default: 10.30.80.0/24
   DatabaseSubnet02CIDR:
     Description: CIDR Block for DatabaseSubnet02
     Type: String
-    Default: 10.30.22.0/24
+    Default: 10.30.81.0/24
   TransitGWSubnet01CIDR:
     Description: CIDR Block for TransitGWsubnet01
     Type: String
@@ -110,6 +110,10 @@ Parameters:
     Description: Operating System for EC2
     Type: String
     Default: ami-0230bd60aa48260c6
+  OPENSWANOS:
+    Description: Operating System for Site to Site VPN Systema(OPENSWAN), Amazon Linux 2 in Virginia
+    Type: String
+    Default: ami-00b8917ae86a424c9
   EC2InstanceNameWeb:
     Description: Name Tag for EC2
     Type: String
@@ -118,6 +122,10 @@ Parameters:
     Description: Name Tag for EC2
     Type: String
     Default: lab-edu-ec2-network-us
+  EC2InstanceNameOpenSwan:
+    Description: Name Tag for EC2
+    Type: String
+    Default: lab-edu-ec2-openswan
   EC2InstanceType:
     Description: WebServer EC2 instance type
     Type: String
@@ -134,7 +142,10 @@ Parameters:
     Description: Security Group Name for Network Server
     Type: String
     Default: lan-edu-sg-network-us
-
+  EC2SecurityGroupOpenSwan:
+    Description: Security Group Name for Site to Site VPC(OPENSWAN) Server
+    Type: String
+    Default: lan-edu-sg-s2svpn
 
 # Mappings:
 #   RegionMap: 
@@ -179,12 +190,19 @@ Metadata:
           
           # - KeyName
           - EC2OS
+          - OPENSWANOS
           - EC2InstanceNameWeb
           - EC2InstanceNameNetwork
+          - EC2InstanceNameOpenSwan
           - EC2InstanceType
           - EC2InstanceRoleName
           - EC2SecurityGroupWeb
           - EC2SecurityGroupNetwork
+          - EC2SecurityGroupOpenSwan
+          
+          - AvailabilityZoneSubnet01
+          - AvailabilityZoneSubnet02
+          
           
 
 Resources:
@@ -490,7 +508,42 @@ Resources:
       Tags:
         - Key: Name
           Value: !Ref EC2InstanceNameNetwork
-  
+  SecurityGroupOpenSwan:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: UDP traffic Open from 10.0.0.0/8
+      GroupName: !Ref EC2SecurityGroupOpenSwan
+      SecurityGroupIngress:
+        - IpProtocol: -1
+          FromPort: -1
+          ToPort: -1
+          CidrIp: 10.0.0.0/8
+        - IpProtocol: udp
+          FromPort: 4500
+          ToPort: 4500
+          CidrIp: 0.0.0.0/0
+      VpcId: !Ref VPC
+  OpenSwanServer:
+    Type: AWS::EC2::Instance
+    Properties:
+      ImageId: !Ref OPENSWANOS
+      InstanceType: !Ref EC2InstanceType
+      SubnetId: !Ref PublicSubnet01
+      IamInstanceProfile: !Ref EC2InstanceProfile
+      SourceDestCheck: false
+      SecurityGroupIds:
+        - !Ref SecurityGroupOpenSwan
+      Tags:
+        - Key: Name
+          Value: !Ref EC2InstanceNameOpenSwan
+
+  OpenSwanEIP:
+    Type: "AWS::EC2::EIP"
+  EIPAssociation:
+    Type: "AWS::EC2::EIPAssociation"
+    Properties:
+      InstanceId: !Ref OpenSwanServer
+      EIP: !Ref OpenSwanEIP
   
   EC2InstanceProfile: 
     Type: AWS::IAM::InstanceProfile
@@ -561,3 +614,7 @@ Outputs:
     Description: The Private IP address of the Network EC2 instance
     Export:
       Name: !Sub "${AWS::StackName}-EC2InstanceNetworkPrivateIp"
+      
+  OpenSwanEIPAddress:
+    Description: "The Elastic IP address of OpenSwan"
+    Value: !GetAtt OpenSwanEIP.PublicIp

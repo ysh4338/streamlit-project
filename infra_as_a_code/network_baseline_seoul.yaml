@@ -45,56 +45,56 @@ Parameters:
   PublicSubnet01Id:
     Description: ID for PublicSubnet01
     Type: String
-    Default: lab-edu-sub-pub-01
+    Default: lab-edu-sub-2nd-pub-01
   PublicSubnet02Id:
     Description: ID for PublicSubnet02
     Type: String
-    Default: lab-edu-sub-pub-02
+    Default: lab-edu-sub-2nd-pub-02
   PrivateSubnet01Id:
     Description: ID for PrivateSubnet01
     Type: String
-    Default: lab-edu-sub-pri-01
+    Default: lab-edu-sub-2nd-pri-01
   PrivateSubnet02Id:
     Description: ID for PrivateSubnet02
     Type: String
-    Default: lab-edu-sub-pri-02
+    Default: lab-edu-sub-2nd-pri-02
   DatabaseSubnet01Id:
     Description: ID for DatabaseSubnet01
     Type: String
-    Default: lab-edu-sub-db-01
+    Default: lab-edu-sub-2nd-db-01
   DatabaseSubnet02Id:
     Description: ID for DatabaseSubnet02
     Type: String
-    Default: lab-edu-sub-db-02
+    Default: lab-edu-sub-2nd-db-02
   TransitGWSubnet01Id:
     Description: ID for TransitGWSubnet01
     Type: String
-    Default: lab-edu-sub-tgw-01
+    Default: lab-edu-sub-2nd-tgw-01
   TransitGWSubnet02Id:
     Description: ID for TransitGWSubnet02
     Type: String
-    Default: lab-edu-sub-tgw-02
+    Default: lab-edu-sub-2nd-tgw-02
 
   PublicRoutingTableId:
     Description: ID for PublicRoutingTableId
     Type: String
-    Default: lab-edu-rtb-pub
+    Default: lab-edu-rtb-2nd-pub
   PrivateRoutingTable01Id:
     Description: ID for PrivateRoutingTable01Id
     Type: String
-    Default: lab-edu-rtb-pri-01
+    Default: lab-edu-rtb-2nd-pri
   PrivateRoutingTable02Id:
     Description: ID for PrivateRoutingTable02Id
     Type: String
-    Default: lab-edu-rtb-pri-02
+    Default: lab-edu-rtb-2nd-pri
   DatabaseRoutingTableId:
     Description: ID for DatabaseRoutingTableId
     Type: String
-    Default: lab-edu-rtb-db
+    Default: lab-edu-rtb-2nd-db
   TransitGWRoutingTableId:
     Description: ID for TransitGWRoutingTableId
     Type: String
-    Default: lab-edu-rtb-tgw
+    Default: lab-edu-rtb-2nd-tgw
 
   AvailabilityZoneSubnet01:
     Description: AvailabilityZone for every First subnet
@@ -113,11 +113,11 @@ Parameters:
   EC2OS:
     Description: Operating System for EC2
     Type: String
-    Default: ami-01123b84e2a4fba05
+    Default: ami-0ff1cd0b5d98708d1
   EC2InstanceNameNetwork:
     Description: Name Tag for EC2
     Type: String
-    Default: lab-edu-ec2-network-ap-02
+    Default: lab-edu-ec2-network-2nd-ap-02
   EC2InstanceType:
     Description: WebServer EC2 instance type
     Type: String
@@ -125,11 +125,11 @@ Parameters:
   EC2InstanceRoleName:
     Description: EC2 Instance Role Name
     Type: String
-    Default: lab-edu-role-webserver-ap-02
+    Default: lab-edu-role-webserver-2nd-ap-02
   EC2SecurityGroupNetwork:
     Description: Security Group Name for Network Server
     Type: String
-    Default: lan-edu-sg-network-us
+    Default: lab-edu-sg-network-2nd-ap
 
 Metadata: 
   AWS::CloudFormation::Interface: 
@@ -158,8 +158,8 @@ Metadata:
           - TransitGWSubnet02CIDR
 
           - PublicRoutingTableId
-          - PrivateRoutingTable01Id
-          - PrivateRoutingTable02Id
+          - PrivateRoutingTable01Id #PrivateRoutingTableId
+          - PrivateRoutingTable02Id #
           - DatabaseRoutingTableId
           - TransitGWRoutingTableId
           
@@ -314,25 +314,25 @@ Resources:
       RouteTableId: !Ref PublicRoutingTable
       SubnetId: !Ref PublicSubnet02
 
-  PrivateRoutingTable01:
+  PrivateRoutingTable01:  #
     Type: AWS::EC2::RouteTable
     Properties:
       VpcId: !Ref VPC
       Tags:
         - Key: Name
-          Value: !Ref PrivateRoutingTable01Id
-  PrivateRoute01:
+          Value: !Ref PrivateRoutingTable01Id #
+  PrivateRoute01: #
     Type: AWS::EC2::Route
-    DependsOn: NatGateway01
+    DependsOn: NatGateway01 #
     Properties:
       RouteTableId: !Ref PrivateRoutingTable01
       DestinationCidrBlock: 0.0.0.0/0
       NatGatewayId: !Ref NatGateway01
-  PrivateSubnetAssociation01:
+  PrivateSubnetAssociation01: # 2nd
     Type: AWS::EC2::SubnetRouteTableAssociation
     Properties:
-      RouteTableId: !Ref PrivateRoutingTable01
-      SubnetId: !Ref PrivateSubnet01
+      RouteTableId: !Ref PrivateRoutingTable01 #
+      SubnetId: !Ref PrivateSubnet01 #
 
   PrivateRoutingTable02:
     Type: AWS::EC2::RouteTable

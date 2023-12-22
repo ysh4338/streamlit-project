@@ -1,0 +1,2 @@
+# cloudformation create stack using aws cli
+aws cloudformation create-stack --stack-name cicd --template-body file:///home/ec2-user/environment/lab-edu-codecommit-application/infra_as_a_code/cicd_repo_and_deploy.yaml --capabilities CAPABILITY_NAMED_IAM

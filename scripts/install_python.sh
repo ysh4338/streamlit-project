@@ -38,11 +38,12 @@ echo "#######################"
 python --version
 
 # Python 3.9 버전을 사용하는 dnf 명령을 위해 설정 변경
-echo "#################################"
-echo "dnf에서 사용하는 Python 버전 지정"
-echo "#################################"
+echo "#####################################"
+echo "dnf/yum에서 사용하는 Python 버전 지정"
+echo "#####################################"
 head -1 /usr/bin/dnf
 sudo sed -i 's|#!/usr/bin/python3|#!/usr/bin/python3.9|g' /usr/bin/dnf
+sudo sed -i 's|#!/usr/bin/python3|#!/usr/bin/python3.9|g' /usr/bin/yum
 head -1 /usr/bin/dnf
 dnf --version
 
@@ -61,3 +62,4 @@ echo "################"
 echo "Stress Tool 설치"
 echo "################"
 dnf install stress -y
+

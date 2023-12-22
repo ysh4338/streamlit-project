@@ -23,12 +23,12 @@ def side_bar():
     with st.sidebar.container():
         selected_page = option_menu(
             menu_title="Main Menu", 
-            # options=["Main_Home"],
+            options=["Main_Home"],
             # options=["Main_Home", "Photo_Gallery"],
-            options=["Main_Home", "Photo_Gallery", "Travel_Attractions"],
+            # options=["Main_Home", "Photo_Gallery", "Travel_Attractions"],
             icons=['bi bi-house', 'bi bi-images', 'bi bi-airplane-engines'],
             menu_icon="cast", 
-            default_index=1,
+            default_index=0,
             styles={
                 "container": {"padding": "4!important", "background-color": "#fafafa"},
                 "icon": {"color": "black", "font-size": "20px"},
