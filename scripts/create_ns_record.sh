@@ -1,9 +1,7 @@
 #!/bin/bash
-ZONE_NAME="samsung-wave.com."
+ZONE_NAME="cj-cloud-wave.com."
 ZONE_ID=$(aws route53 list-hosted-zones --query "HostedZones[?Name == '$ZONE_NAME'].Id" --output text)
 JSON_DIR="JSON_FILE"
-echo $ZONE_ID
-pwd
 
 json_files=("$JSON_DIR"/*.json)
 echo "JSON files found in the directory:"

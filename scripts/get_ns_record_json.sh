@@ -1,7 +1,18 @@
 #!/bin/bash
 # JSON 파일 경로
+JSON_PATH="JSON_FILE"
+
+# Check if the folder exists
+if [ ! -d "$JSON_PATH" ]; then
+    # Folder doesn't exist, so create it
+    mkdir "$JSON_PATH"
+    echo "Created folder: $JSON_PATH"
+else
+    # Folder exists
+    echo "Folder $JSON_PATH already exists."
+fi
 RECORD_NAME=$1
-ZONE_NAME="samsung-wave.com."
+ZONE_NAME="cj-cloud-wave.com."
 ZONE_ID=$(aws route53 list-hosted-zones --query "HostedZones[?Name == '$RECORD_NAME.$ZONE_NAME'].Id" --output text)
 JSON_DIR="JSON_FILE"/$RECORD_NAME.json
 cp sample.json $JSON_DIR
