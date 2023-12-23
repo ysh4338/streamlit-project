@@ -45,7 +45,7 @@ head -1 /usr/bin/dnf
 sudo sed -i 's|#!/usr/bin/python3|#!/usr/bin/python3.9|g' /usr/bin/dnf
 sudo sed -i 's|#!/usr/bin/python3|#!/usr/bin/python3.9|g' /usr/bin/yum
 head -1 /usr/bin/dnf
-dnf --version
+sudo dnf --version
 
 # Streamlit 설치
 echo "##############"
@@ -61,5 +61,5 @@ pip install psutil
 echo "################"
 echo "Stress Tool 설치"
 echo "################"
-dnf install stress -y
+sudo dnf install stress -y
 
