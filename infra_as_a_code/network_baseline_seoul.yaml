@@ -270,28 +270,28 @@ Resources:
       InternetGatewayId: !Ref InternetGateway
       VpcId: !Ref VPC
 
-  EIP01:
-    Type: AWS::EC2::EIP
-  EIP02:
-    Type: AWS::EC2::EIP
-  NatGateway01:
-    Type: AWS::EC2::NatGateway
-    DependsOn: AttachIgw
-    Properties:
-      AllocationId: !GetAtt EIP01.AllocationId
-      SubnetId: !Ref PublicSubnet01
-      Tags:
-        - Key: Name
-          Value: lab-edu-natgw-01
-  NatGateway02:
-    Type: AWS::EC2::NatGateway
-    DependsOn: AttachIgw
-    Properties:
-      AllocationId: !GetAtt EIP02.AllocationId
-      SubnetId: !Ref PublicSubnet02
-      Tags:
-        - Key: Name
-          Value: lab-edu-natgw-02
+  # EIP01:
+  #   Type: AWS::EC2::EIP
+  # EIP02:
+  #   Type: AWS::EC2::EIP
+  # NatGateway01:
+  #   Type: AWS::EC2::NatGateway
+  #   DependsOn: AttachIgw
+  #   Properties:
+  #     AllocationId: !GetAtt EIP01.AllocationId
+  #     SubnetId: !Ref PublicSubnet01
+  #     Tags:
+  #       - Key: Name
+  #         Value: lab-edu-natgw-01
+  # NatGateway02:
+  #   Type: AWS::EC2::NatGateway
+  #   DependsOn: AttachIgw
+  #   Properties:
+  #     AllocationId: !GetAtt EIP02.AllocationId
+  #     SubnetId: !Ref PublicSubnet02
+  #     Tags:
+  #       - Key: Name
+  #         Value: lab-edu-natgw-02
 
   PublicRoutingTable:
     Type: AWS::EC2::RouteTable
@@ -325,13 +325,13 @@ Resources:
       Tags:
         - Key: Name
           Value: !Ref PrivateRoutingTable01Id #
-  PrivateRoute01: #
-    Type: AWS::EC2::Route
-    DependsOn: NatGateway01 #
-    Properties:
-      RouteTableId: !Ref PrivateRoutingTable01
-      DestinationCidrBlock: 0.0.0.0/0
-      NatGatewayId: !Ref NatGateway01
+  # PrivateRoute01: #
+  #   Type: AWS::EC2::Route
+  #   DependsOn: NatGateway01 #
+  #   Properties:
+  #     RouteTableId: !Ref PrivateRoutingTable01
+  #     DestinationCidrBlock: 0.0.0.0/0
+  #     NatGatewayId: !Ref NatGateway01
   PrivateSubnetAssociation01: # 2nd
     Type: AWS::EC2::SubnetRouteTableAssociation
     Properties:
@@ -345,13 +345,13 @@ Resources:
       Tags:
         - Key: Name
           Value: !Ref PrivateRoutingTable02Id
-  PrivateRoute02:
-    Type: AWS::EC2::Route
-    DependsOn: NatGateway02
-    Properties:
-      RouteTableId: !Ref PrivateRoutingTable02
-      DestinationCidrBlock: 0.0.0.0/0
-      NatGatewayId: !Ref NatGateway02
+  # PrivateRoute02:
+  #   Type: AWS::EC2::Route
+  #   DependsOn: NatGateway02
+  #   Properties:
+  #     RouteTableId: !Ref PrivateRoutingTable02
+  #     DestinationCidrBlock: 0.0.0.0/0
+  #     NatGatewayId: !Ref NatGateway02
   PrivateSubnetAssociation02:
     Type: AWS::EC2::SubnetRouteTableAssociation
     Properties:
