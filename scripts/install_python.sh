@@ -63,3 +63,19 @@ echo "Stress Tool 설치"
 echo "################"
 sudo dnf install stress -y
 
+
+# Git install & Code clone
+echo "##################"
+echo "Git & Code Install"
+echo "##################"
+yum install git -y
+cd /root/
+git clone https://github.com/ysh4338/streamlit-project.git
+
+
+# Start Application
+echo "#################"
+echo "Application Start"
+echo "#################"
+cd streamlit-project
+streamlit run main.py --server.port 80
