@@ -49,6 +49,7 @@ Resources:
   #Create Artifact Store for Code Pipeline
   ArtifactS3:
     Type: AWS::S3::Bucket
+    DeletionPolicy: Retain
     UpdateReplacePolicy: Retain
     Properties:
       BucketName: !Join ['',[!Ref ArtifactS3BucketName,'-', !Ref 'AWS::AccountId']]
@@ -113,6 +114,7 @@ Resources:
   #Application Source Code Store
   CodeCommitRepository:
     Type: AWS::CodeCommit::Repository
+    DeletionPolicy: Retain
     UpdateReplacePolicy: Retain
     Properties:
       RepositoryName: !Ref CodeCommitRepositoryName
