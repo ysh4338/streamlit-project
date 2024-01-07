@@ -79,7 +79,7 @@ plotly-express==0.4.1
 plotnine==0.12.3
 protobuf==4.24.3
 psutil==5.9.6
-psycopg2==2.9.9
+psycopg2-binary
 pyarrow==13.0.0
 pycparser==2.21
 pydantic==2.3.0
