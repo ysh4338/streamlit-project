@@ -14,18 +14,20 @@ def login():
     conn = get_db_connection()
     cursor = conn.cursor()
 
-    # 사용자 인증 쿼리
+    # 안전한 사용자 인증 쿼리
     cursor.execute('SELECT * FROM users WHERE username = %s;', (username,))
+    # 취약한 사용자 인증 쿼리
     # query = f"SELECT * FROM users WHERE username = '{username}' AND password = '{password}'"
     # cursor.execute(query)
     user = cursor.fetchone()
     cursor.close()
     conn.close()
 
-    # 사용자 검증
+    # 안전한 사용자 검증 처리
     if user and user[3] == password: 
-    # if user:
         return jsonify(success=True)
+    # 취약한 사용자 검증 처리
+    # if user:
         # return jsonify(user=user, success=True)
     else:
         return jsonify(success=False), 401
