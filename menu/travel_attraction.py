@@ -144,7 +144,7 @@ class TravelAttraction:
         self.get_attraction()
         end_time = time.time()
         result = end_time - start_time
-        print(f"delete_attraction time: {result} 초")
+        print(f"get_attraction time: {result} 초")
 
         
         col1, col2, col3 = st.columns(3)
@@ -172,5 +172,6 @@ class TravelAttraction:
             end_time = time.time()
             result = end_time - start_time
             print(f"delete_attraction time: {result} 초")
+            print("---")
         st.subheader("")
 
