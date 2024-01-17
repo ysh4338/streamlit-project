@@ -39,12 +39,12 @@ def connect_to_database(secret_values):
 
 def get_db_connection():
     # Replace with your AWS region
-    # aws_region = "REGION"
-    aws_region = "ap-northeast-2"
+    aws_region = "REGION"
+    # aws_region = "ap-northeast-2"
 
     # Replace with your secret name in AWS Secret Manager
-    # secret_name = "SECRETS_NAME"
-    secret_name = "test/postgres"
+    secret_name = "SECRETS_NAME"
+    # secret_name = "/secret/aurora"
 
     try:
         secret_values = get_secret_value(secret_name, aws_region)
