@@ -19,7 +19,7 @@ def get_secret_value(secret_name, region_name):
 def connect_to_database(secret_values):
     host = secret_values['host']
     port = secret_values['port']
-    database = secret_values['dbname']
+    database = secret_values['database']
     username = secret_values['username']
     password = secret_values['password']
     # print(host,port,database,username,password)
